@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#008577</color>
+    <color name="colorPrimaryDark">#00574B</color>
+    <color name="colorAccent">#D81B60</color>
+
+    <color name="bg_login">#E86F6F</color>
+    <color name="bg_editText">#ffffff</color>
+
+    <color name="colorBlack">#000000</color>
+    <color name="colorError">#fc0202</color>
+
+    <color name="processing">#f4424e</color>
+    <color name="delivered">#0fba00</color>
+</resources>

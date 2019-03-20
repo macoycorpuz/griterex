@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="@dimen/fragment_padding">
+
+    <TextView
+        android:id="@+id/txtCreditCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:textSize="@dimen/credit_card_font_size"
+        android:textColor="@color/colorBlack"
+        android:textStyle="bold"
+        android:text="@string/title_credit_card"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/viewCardNumber"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/txtCardNumber"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:maxLines="1"
+                android:singleLine="true"
+                android:hint="@string/cardNumber"/>
+
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/viewExpiryDate"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/viewCardNumber"
+            android:layout_alignParentStart="true"
+            android:layout_toStartOf="@+id/viewCsv">
+
+            <EditText
+                android:id="@+id/txtExpiryDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="date"
+                android:maxLines="1"
+                android:singleLine="true"
+                android:hint="@string/expiryDate"/>
+
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/viewCsv"
+            android:layout_width="130dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/viewCardNumber"
+            android:layout_alignParentEnd="true" >
+
+            <EditText
+                android:id="@+id/txtCsv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:maxLines="1"
+                android:singleLine="true"
+                android:hint="@string/csv"/>
+
+        </android.support.design.widget.TextInputLayout>
+    </RelativeLayout>
+
+</LinearLayout>

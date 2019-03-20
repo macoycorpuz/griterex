@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:id="@+id/viewOrderDetails"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/viewOrderButtons"
+        android:layout_alignParentTop="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:padding="@dimen/product_padding">
+
+            <TextView
+                android:id="@+id/txtOrderStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical|center_horizontal"
+                android:text="@string/status"
+                android:textSize="@dimen/status_font_size"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/product"
+                android:textSize="@dimen/order_font_size"
+                android:textStyle="bold"
+                android:textColor="@color/colorBlack"/>
+
+            <include
+                layout="@layout/item_product"
+                android:id="@+id/itemOrderProduct"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/txtOrderUser"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/buyer"
+                android:textSize="@dimen/order_font_size"
+                android:textStyle="bold"
+                android:textColor="@color/colorBlack"/>
+
+            <include
+                layout="@layout/item_user"
+                android:id="@+id/itemOrderUser"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+
+    <Button
+        android:id="@+id/btnOrderCancel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/btn_margin"
+        android:layout_gravity="center_vertical|center_horizontal"
+        android:layout_alignParentBottom="true"
+        android:textStyle="bold"
+        android:textSize="@dimen/btn_font_size"
+        android:text="@string/action_order_cancel"/>
+
+    <LinearLayout
+        android:id="@+id/viewOrderButtons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/btn_margin"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/btnOrderProcess"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical|center_horizontal"
+            android:textStyle="bold"
+            android:textSize="@dimen/btn_font_size"
+            android:text="@string/action_order_processing"/>
+
+        <Button
+            android:id="@+id/btnOrderDelivered"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical|center_horizontal"
+            android:textStyle="bold"
+            android:textSize="@dimen/btn_font_size"
+            android:text="@string/action_order_delivered"/>
+
+    </LinearLayout>
+
+</RelativeLayout>

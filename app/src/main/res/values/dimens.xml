@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- region Login Title Dimens-->
+    <dimen name="title_horizontal_margin">10dp</dimen>
+    <dimen name="title_vertical_margin">50dp</dimen>
+    <dimen name="title_size">50sp</dimen>
+    <!-- endregion -->
+
+    <!-- region Activity Dimens-->
+    <dimen name="activity_padding">16dp</dimen>
+    <dimen name="activity_title_size">35sp</dimen>
+    <dimen name="activity_vertical_margin">15dp</dimen>
+    <!-- endregion -->
+
+    <!-- region Fragment Dimens-->
+    <dimen name="fragment_padding">15dp</dimen>
+    <dimen name="fragment_title_size">38sp</dimen>
+    <!-- endregion -->
+
+    <!-- region Card View Dimens -->
+    <dimen name="card_view_vertical_margin">10dp</dimen>
+    <dimen name="card_view_corner_radius">20dp</dimen>
+    <dimen name="card_view_elevation">10dp</dimen>
+    <!-- endregion -->
+
+    <!-- region Views Dimens-->
+    <dimen name="text_font_size">18sp</dimen>
+    <dimen name="edit_font_size">18sp</dimen>
+    <dimen name="btn_font_size">18sp</dimen>
+    <dimen name="order_font_size">25sp</dimen>
+    <dimen name="status_font_size">28sp</dimen>
+    <dimen name="credit_card_font_size">22sp</dimen>
+
+    <dimen name="text_vertical_margin">10dp</dimen>
+    <dimen name="edit_vertical_margin">10dp</dimen>
+    <dimen name="btn_vertical_margin">16dp</dimen>
+    <dimen name="error_vertical_margin">15dp</dimen>
+    <dimen name="progress_margin">120dp</dimen>
+    <dimen name="btn_margin">10dp</dimen>
+
+    <dimen name="product_padding">10dp</dimen>
+
+    <dimen name="image_height">200dp</dimen>
+    <!-- endregion -->
+</resources>
