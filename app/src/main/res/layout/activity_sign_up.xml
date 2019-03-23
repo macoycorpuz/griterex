@@ -19,6 +19,7 @@
         android:layout_marginBottom="@dimen/activity_vertical_margin"/>
 
     <ScrollView
+        android:id="@+id/mainScrollView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 

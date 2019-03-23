@@ -19,33 +19,12 @@ public class HomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Log.d("Home Activity", "Started");
         setContentView(R.layout.activity_home);
         BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.inflateMenu(R.menu.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         Utils.switchContent(HomeActivity.this, R.id.fragContainer, Tags.PRODUCTS_FRAGMENT);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-        showAccount();
-    }
-
-    private void showAccount() {
-        boolean isLoggedIn = SharedPrefManager.getInstance().isLoggedIn(this);
-        int accountId = SharedPrefManager.getInstance().getUser(this).getAccount_id();
-        Log.d("Home Activity", "Account Id: " +  String.valueOf(accountId));
-        if(isLoggedIn)
-            switch(accountId) {
-                case Tags.SUPPLIER:
-                    finish();
-                    startActivity(new Intent(this, SupplierActivity.class));
-                    Utils.switchContent(HomeActivity.this, R.id.fragContainer, Tags.PRODUCTS_FRAGMENT);
-                    break;
-                case Tags.ADMIN:
-                    finish();
-                    startActivity(new Intent(this, AdminActivity.class));
-                    Utils.switchContent(HomeActivity.this, R.id.fragContainer, Tags.PRODUCTS_FRAGMENT);
-                    break;
-            }
     }
 
     //region Navigation Listener

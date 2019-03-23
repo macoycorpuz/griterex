@@ -16,11 +16,11 @@ public class SupplierActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        Utils.switchContent(SupplierActivity.this, R.id.fragContainer, Tags.PRODUCTS_FRAGMENT);
         setContentView(R.layout.activity_home);
         BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.inflateMenu(R.menu.navigation_supplier);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-        Utils.switchContent(SupplierActivity.this, R.id.fragContainer, Tags.PRODUCTS_FRAGMENT);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
     }
 

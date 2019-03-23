@@ -31,6 +31,7 @@ import com.google.android.gms.location.places.ui.PlacePicker;
 import java.io.File;
 import java.io.InputStream;
 
+import id.zelory.compressor.Compressor;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import retrofit2.Call;
@@ -47,6 +48,7 @@ import thesis.griterex.utils.Utils;
 public class SellFragment extends Fragment {
 
     //region Attributes
+    String TAG = "Sell Fragment";
     View mView;
     EditText mCategoryName, mProductName, mPrice, mDescription;
     ImageView mImage;
@@ -67,6 +69,7 @@ public class SellFragment extends Fragment {
 
         // Initialize Views
         mCategoryName = mView.findViewById(R.id.txtSellCategoryName);
+        mCategoryName.setText("Gas");
         mProductName = mView.findViewById(R.id.txtSellProductName);
         mPrice = mView.findViewById(R.id.txtSellPrice);
         mDescription = mView.findViewById(R.id.txtSellDescription);
@@ -83,8 +86,9 @@ public class SellFragment extends Fragment {
         });
         mCategoryName.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
-            public void onFocusChange(View v, boolean hasFocus) { selectCategory(); }
+            public void onFocusChange(View v, boolean hasFocus) { if(hasFocus) selectCategory(); }
         });
+        mCategoryName.setKeyListener(null);
         mImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -107,9 +111,8 @@ public class SellFragment extends Fragment {
             if (requestCode == PICK_IMAGE_REQUEST) {
                 try {
                     fileUri = data.getData();
-                    InputStream imageStream = getActivity().getContentResolver().openInputStream(fileUri);
-                    Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
-                    mImage.setImageBitmap(selectedImage);
+                    mImage.setImageBitmap(new Compressor(getActivity())
+                            .compressToBitmap(new File(Utils.getRealPathFromURI(getActivity(), fileUri))));
                     mImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -126,6 +129,8 @@ public class SellFragment extends Fragment {
     }
 
     private void selectCategory() {
+        //TODO: Remove the line below this
+        Log.d(TAG, "selectCategory: " + fileUri);
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
         alert.setTitle("Choose Category Type");
         final String[] category = {"Gas", "Water", "Rice"};
@@ -157,16 +162,16 @@ public class SellFragment extends Fragment {
 
     private void authenticate() {
         mError.setVisibility(View.GONE);
-        int supplierId = SharedPrefManager.getInstance().getUser(getActivity()).getUserId();
+        int supplierId = SharedPrefManager.getInstance().getUser(getActivity()).getId();
         product = new Product(
-                supplierId,
-                categoryId,
                 mProductName.getText().toString(),
                 mDescription.getText().toString(),
-                Double.valueOf(mPrice.getText().toString())
+                Double.valueOf(mPrice.getText().toString()),
+                supplierId,
+                categoryId
         );
 
-        if (!Utils.isEmptyFields(mCategoryName.getText().toString(), product.getProductName(), product.getDescription(), mPrice.getText().toString())) {
+        if (Utils.isEmptyFields(mCategoryName.getText().toString(), product.getName(), product.getDescription(), mPrice.getText().toString())) {
             mError.setText(R.string.error_sell_product);
             mError.setVisibility(View.VISIBLE);
         } else if (fileUri == null) {
@@ -181,12 +186,12 @@ public class SellFragment extends Fragment {
     private void sellProduct() {
         pDialog = Utils.showProgressDialog(getActivity(), "Posting your product...");
         parseRequestBody();
-        Api.getInstance().getServices().setProduct(supplierIdBody, categoryIdBody, productNameBody, descriptionBody, priceBody, fileBody).enqueue(new Callback<Result>() {
+        Api.getInstance().getServices().setProduct(productNameBody, descriptionBody, priceBody, supplierIdBody, categoryIdBody, fileBody).enqueue(new Callback<Result>() {
             @Override
             public void onResponse(@Nullable Call<Result> call, @NonNull Response<Result> response) {
                 try {
                     Utils.dismissProgressDialog(pDialog);
-                    if (response.errorBody() != null)
+                    if (!response.isSuccessful())
                         throw new Exception(response.errorBody().string());
                     if (response.body().getError())
                         throw new Exception(response.body().getMessage());
@@ -205,11 +210,15 @@ public class SellFragment extends Fragment {
 
     private void parseRequestBody() {
         File filePath = new File(Utils.getRealPathFromURI(getActivity(), fileUri));
-        supplierIdBody = RequestBody.create(MediaType.parse("text/plain"), String.valueOf(product.getSupplierId()));
-        categoryIdBody = RequestBody.create(MediaType.parse("text/plain"), String.valueOf(product.getCategoryId()));
-        productNameBody = RequestBody.create(MediaType.parse("text/plain"), product.getProductName());
-        descriptionBody = RequestBody.create(MediaType.parse("text/plain"), product.getDescription());
-        priceBody = RequestBody.create(MediaType.parse("text/plain"), String.valueOf(product.getPrice()));
-        fileBody = RequestBody.create(MediaType.parse(getActivity().getContentResolver().getType(fileUri)), filePath);
+        try {
+            supplierIdBody = RequestBody.create(MediaType.parse("text/plain"), String.valueOf(product.getUser_id()));
+            categoryIdBody = RequestBody.create(MediaType.parse("text/plain"), String.valueOf(product.getCategory_id()));
+            productNameBody = RequestBody.create(MediaType.parse("text/plain"), product.getName());
+            descriptionBody = RequestBody.create(MediaType.parse("text/plain"), product.getDescription());
+            priceBody = RequestBody.create(MediaType.parse("text/plain"), String.valueOf(product.getPrice()));
+            fileBody = RequestBody.create(MediaType.parse(getActivity().getContentResolver().getType(fileUri)), new Compressor(getActivity()).compressToFile(filePath));
+        } catch (Exception ex) {
+
+        }
     }
 }

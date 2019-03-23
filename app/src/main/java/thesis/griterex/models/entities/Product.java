@@ -15,7 +15,7 @@ public class Product {
     @Expose
     private String url;
     @Expose
-    private int supplier_id;
+    private int user_id;
     @Expose
     private int category_id;
     @Expose
@@ -23,11 +23,11 @@ public class Product {
     @Expose
     private User user;
 
-    public Product(String name, String description, double price, int supplier_id, int category_id) {
+    public Product(String name, String description, double price, int user_id, int category_id) {
         this.name = name;
         this.description = description;
         this.price = price;
-        this.supplier_id = supplier_id;
+        this.user_id = user_id;
         this.category_id = category_id;
     }
 
@@ -51,8 +51,8 @@ public class Product {
         return url;
     }
 
-    public int getSupplier_id() {
-        return supplier_id;
+    public int getUser_id() {
+        return user_id;
     }
 
     public int getCategory_id() {

@@ -76,7 +76,7 @@ public class ProductDetailsFragment extends Fragment {
     }
 
     private void authenticate() {
-        int accountId = SharedPrefManager.getInstance().getUser(getActivity()).getAccountId();
+        int accountId = SharedPrefManager.getInstance().getUser(getActivity()).getAccount_id();
         Log.d(TAG, "authenticate: " + accountId);
         switch (accountId) {
             case Tags.USER:
@@ -92,7 +92,7 @@ public class ProductDetailsFragment extends Fragment {
 
     private void fetchProduct() {
         pDialog = Utils.showProgressDialog(getActivity(), "Loading...");
-        Api.getInstance().getServices().getProductById(productId).enqueue(new Callback<Result>() {
+        Api.getInstance().getServices().getProduct(productId).enqueue(new Callback<Result>() {
             @Override
             public void onResponse(@Nullable Call<Result> call, @NonNull final Response<Result> response) {
                 try {
@@ -116,16 +116,25 @@ public class ProductDetailsFragment extends Fragment {
 
     private void showProduct(Product product) {
         Log.d(TAG, "showProduct: " + product.toString());
-        mProductName.setText(product.getProductName());
-        mCategoryName.setText(product.getCategory().getCategoryName());
-        mSupplierName.setText(product.getUser().getName());
-        mAddress.setText(product.getUser().getAddress());
-        mDescription.setText(product.getDescription());
-        mPrice.setText(String.valueOf(product.getPrice()));
+
+        String category = "Category: " + product.getCategory().getName();
+        String supplierName = "Supplier Name: " + product.getUser().getName();
+        String address = "Address: " + product.getUser().getAddress();
+        String description = "Description: " + product.getDescription();
+        String price = "Price: " + String.valueOf(product.getPrice());
+
+        mProductName.setText(product.getName());
+        mCategoryName.setText(category);
+        mSupplierName.setText(supplierName);
+        mAddress.setText(address);
+        mDescription.setText(description);
+        mPrice.setText(price);
         Picasso.get()
-                .load(product.getProductUrl())
+                .load(product.getUrl())
                 .placeholder(R.drawable.ic_photo_light_blue_24dp)
                 .error(R.drawable.ic_error_outline_red_24dp)
+                .fit()
+                .centerInside()
                 .into(mImage);
     }
 

@@ -38,9 +38,12 @@ public interface Tags {
     int WATER = 2;
     int RICE = 3;
 
-    String DELIVERED = "delivered";
-    String PROCESSING = "processing";
-    String CANCEL = "cancel";
+    int CASH = 1;
+    int CREDIT = 2;
+
+    String DELIVERED = "Delivered";
+    String PROCESSING = "Processing Order";
+    String CANCEL = "Cancel";
     //endregion
 
 }

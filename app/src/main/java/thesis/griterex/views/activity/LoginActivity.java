@@ -69,7 +69,7 @@ public class LoginActivity extends AppCompatActivity {
         String email = mEmail.getText().toString();
         String password = mPassword.getText().toString();
 
-        if (!Utils.isEmptyFields(email, password)) {
+        if (Utils.isEmptyFields(email, password)) {
             mError.setText(R.string.error_login);
             mError.setVisibility(View.VISIBLE);
         } else {
@@ -96,7 +96,7 @@ public class LoginActivity extends AppCompatActivity {
             }
             @Override
             public void onFailure(Call<Result> call, Throwable t) {
-                Toast.makeText(LoginActivity.this, t.getMessage(), Toast.LENGTH_LONG).show();
+                Utils.handleError(t.getMessage(), mError, pDialog);
             }
         });
     }

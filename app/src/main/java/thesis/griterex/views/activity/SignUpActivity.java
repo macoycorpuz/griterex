@@ -15,6 +15,7 @@ import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,31 +30,33 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import thesis.griterex.R;
 import thesis.griterex.domain.Api;
-import thesis.griterex.models.entities.CreditCard;
+import thesis.griterex.models.entities.Credit;
 import thesis.griterex.models.entities.Result;
 import thesis.griterex.models.entities.User;
 import thesis.griterex.utils.Tags;
 import thesis.griterex.utils.Utils;
 
-//TODO: Add credit card
 public class SignUpActivity extends AppCompatActivity {
 
     //region Attributes
     View mViewCredit;
+    ScrollView mainScrollView;
     EditText mAccount, mName, mEmail, mPassword, mConfirmPassword, mNumber, mAddress, mLocation;
     EditText mCardNumber, mExpiryDate, mCsv;
     ProgressDialog pDialog;
     TextView mError;
 
     int PLACE_PICKER_REQUEST = 1;
-    int accountId;
-    LatLng location;
+    int account_id;
+    LatLng location = new LatLng(0, 0);
     //endregion
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
+
+        mainScrollView = findViewById(R.id.mainScrollView);
 
         mError = findViewById(R.id.txtSignUpError);
         mAccount = findViewById(R.id.txtSignUpAccount);
@@ -69,6 +72,7 @@ public class SignUpActivity extends AppCompatActivity {
         mCardNumber = mViewCredit.findViewById(R.id.txtCardNumber);
         mExpiryDate = mViewCredit.findViewById(R.id.txtExpiryDate);
         mCsv = mViewCredit.findViewById(R.id.txtCsv);
+        mCsv.setText("0");
 
         mAccount.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -144,13 +148,13 @@ public class SignUpActivity extends AppCompatActivity {
                 switch (position) {
                     case 0:
                         Log.d("Click", "User Clicked");
-                        accountId = Tags.USER;
+                        account_id = Tags.USER;
                         mViewCredit.setVisibility(View.GONE);
                         mAccount.setText(accountType[position]);
                         break;
                     case 1:
                         Log.d("Click", "Supplier Clicked");
-                        accountId = Tags.SUPPLIER;
+                        account_id = Tags.SUPPLIER;
                         mViewCredit.setVisibility(View.VISIBLE);
                         mAccount.setText(accountType[position]);
                         break;
@@ -171,30 +175,32 @@ public class SignUpActivity extends AppCompatActivity {
         clearViews();
 
         User user = new User(
-                accountId,
                 mName.getText().toString(),
                 mEmail.getText().toString(),
                 mPassword.getText().toString(),
                 mNumber.getText().toString(),
                 mAddress.getText().toString(),
                 location.latitude,
-                location.longitude
+                location.longitude,
+                account_id
         );
-        CreditCard cc = new CreditCard(
+        Credit cc = new Credit(
                 mCardNumber.getText().toString(),
                 mExpiryDate.getText().toString(),
-                mCsv.getText().toString()
+                Integer.valueOf(mCsv.getText().toString())
         );
 
-        if (!Utils.isEmptyFields(user.getName(), user.getEmail(), user.getPassword(), mConfirmPassword.getText().toString(), user.getNumber(), user.getAddress())) {
+        if (Utils.isEmptyFields(user.getName(), user.getEmail(), user.getPassword(), mConfirmPassword.getText().toString(), user.getNumber(), user.getAddress())) {
             mError.setText(R.string.error_sign_up);
             mError.setVisibility(View.VISIBLE);
-        } else if (!Utils.isEmptyFields(cc.getCardNumber(), cc.getExpiryDate(), cc.getCsv()) && accountId == Tags.SUPPLIER) {
+            mainScrollView.fullScroll(ScrollView.FOCUS_UP);
+        } else if (Utils.isEmptyFields(cc.getNumber(), cc.getExpiry(), String.valueOf(cc.getCsv())) && account_id == Tags.SUPPLIER) {
             mError.setError(getString(R.string.error_sign_up));
             mError.setVisibility(View.VISIBLE);
+            mainScrollView.fullScroll(ScrollView.FOCUS_UP);
         } else if (!Utils.isEmailValid(user.getEmail())) {
-            mError.setError(getString(R.string.error_invalid_email));
-            mError.requestFocus();
+            mEmail.setError(getString(R.string.error_invalid_email));
+            mEmail.requestFocus();
         } else if (!Utils.isPasswordValid(user.getPassword()) || !user.getPassword().equals(mConfirmPassword.getText().toString())) {
             mPassword.setError(getString(R.string.error_invalid_password));
             mPassword.requestFocus();
@@ -204,7 +210,7 @@ public class SignUpActivity extends AppCompatActivity {
         }
     }
 
-    private void fetchSignUp(User user, CreditCard cc) {
+    private void fetchSignUp(User user, Credit cc) {
         pDialog = Utils.showProgressDialog(this, "Creating your account...");
         Api.getInstance().getServices().setUser(
                 user.getName(),
@@ -214,16 +220,16 @@ public class SignUpActivity extends AppCompatActivity {
                 user.getAddress(),
                 user.getLat(),
                 user.getLng(),
-                user.getAccountId(),
-                cc.getCardNumber(),
-                cc.getCsv(),
-                cc.getExpiryDate()).enqueue(new Callback<Result>() {
+                user.getAccount_id(),
+                cc.getNumber(),
+                cc.getExpiry(),
+                cc.getCsv()).enqueue(new Callback<Result>() {
             @Override
             public void onResponse(@Nullable Call<Result> call, @NonNull Response<Result> response) {
                 try {
                     Utils.dismissProgressDialog(pDialog);
                     if(!response.isSuccessful())
-                        throw new Exception(response.errorBody().string());
+                        throw new Exception("Server not responding");
                     if(response.body() == null)
                         throw new Exception("No Response");
                     if(response.body().getError())
@@ -236,6 +242,7 @@ public class SignUpActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(@Nullable Call<Result> call, @NonNull Throwable t) {
+                Utils.dismissProgressDialog(pDialog);
                 Toast.makeText(SignUpActivity.this, t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });

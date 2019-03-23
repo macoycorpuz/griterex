@@ -34,6 +34,7 @@ import thesis.griterex.views.adapter.ProductAdapter;
 public class ProductsFragment extends Fragment{
 
     //region Attributes
+    String TAG = "Products Fragment";
     View mView, mViewProductList;
     TabLayout mTabLayout;
     EditText mSearch;
@@ -106,7 +107,7 @@ public class ProductsFragment extends Fragment{
             }
         });
 
-        //fetchProducts(categoryId,null);
+        fetchProducts(categoryId,null);
 
         return mView;
 
@@ -121,19 +122,23 @@ public class ProductsFragment extends Fragment{
     private void fetchProducts(int categoryId, String productName) {
         clearView();
         Utils.showProgress(true, mProgress, mRecyclerView);
-        int accountId = SharedPrefManager.getInstance().getUser(getActivity()).getAccountId();
-        int supplierId = SharedPrefManager.getInstance().getUser(getActivity()).getUserId();
+        int accountId = SharedPrefManager.getInstance().getUser(getActivity()).getAccount_id();
+        int supplierId = SharedPrefManager.getInstance().getUser(getActivity()).getId();
         Call<Result> call;
+
         if(accountId == Tags.SUPPLIER) call = Api.getInstance().getServices().getProductsBySupplier(categoryId, supplierId);
-        else if (!TextUtils.isEmpty(productName)) call = Api.getInstance().getServices().getProductsByName(productName);
-        else call =Api.getInstance().getServices().getProductsByCategory(categoryId);
+        else if (!TextUtils.isEmpty(productName)) call = Api.getInstance().getServices().getProductsByName(categoryId, productName);
+        else call = Api.getInstance().getServices().getProductsByCategory(categoryId);
+
         call.enqueue(new Callback<Result>() {
             @Override
             public void onResponse(Call<Result> call, Response<Result> response) {
                 try {
                     Utils.showProgress(false, mProgress, mRecyclerView);
                     if(!response.isSuccessful())
-                        throw new Exception(response.errorBody().toString());
+                        throw new Exception("Server not responding");
+                    if(response.body() == null)
+                        throw new Exception("No Response");
                     if(response.body().getError())
                         throw new Exception(response.body().getMessage());
                     productList = response.body().getProducts();
@@ -145,7 +150,7 @@ public class ProductsFragment extends Fragment{
 
             @Override
             public void onFailure(Call<Result> call, Throwable t) {
-                Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_LONG).show();
+                Utils.handleError(t.getMessage(), mError, mProgress, mRecyclerView);
             }
         });
     }
@@ -158,7 +163,7 @@ public class ProductsFragment extends Fragment{
                 if(!SharedPrefManager.getInstance().isLoggedIn(getActivity()))
                     Utils.switchContent(getActivity(), R.id.fragContainer, Tags.ACCOUNT_FRAGMENT);
                 else {
-                    Utils.setProductId(productList.get(position).getProductId());
+                    Utils.setProductId(productList.get(position).getId());
                     Utils.switchContent(getActivity(), R.id.fragContainer, Tags.PRODUCT_DETAILS_FRAGMENT);
                 }
             }

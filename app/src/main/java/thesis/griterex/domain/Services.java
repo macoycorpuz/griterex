@@ -18,8 +18,8 @@ import thesis.griterex.models.entities.User;
 
 public interface Services {
 
-//    String MAIN_URL = "http://gritterexthesis.000webhostapp.com/api/";
-    String MAIN_URL = "http://192.168.0.11/griterex/public/";
+    String MAIN_URL = "http://gritterexthesis.000webhostapp.com/";
+//    String MAIN_URL = "http://192.168.0.11/griterex/public/";
 
     //region Users
     @FormUrlEncoded
@@ -40,8 +40,8 @@ public interface Services {
             @Field("lng")double lng,
             @Field("account_id") int account_id,
             @Field("credit_number") String credit_number,
-            @Field("csv") int csv,
-            @Field("expiry") String expiry);
+            @Field("expiry") String expiry,
+            @Field("csv") int csv);
 
     @GET("users")
     Call<Result> getUsers();
@@ -59,18 +59,30 @@ public interface Services {
     //region Products
     @Multipart
     @POST("products")
-    Call<Result> setProduct(@Part("name") RequestBody productName,
+    Call<Result> setProduct(@Part("name") RequestBody name,
                             @Part("description") RequestBody description,
                             @Part("price") RequestBody price,
-                            @Part("supplier_id") RequestBody sellerId,
-                            @Part("category_id") RequestBody categoryId,
-                            @Part("image\"; filename=\"image.jpg\" ") RequestBody productImage);
+                            @Part("user_id") RequestBody user_id,
+                            @Part("category_id") RequestBody category_id,
+                            @Part("image\"; filename=\"image.jpg\" ") RequestBody image);
 
     @GET("products")
     Call<Result> getProducts();
 
     @GET("products/categories/{id}")
     Call<Result> getProductsByCategory(@Path("id") int id);
+
+    @GET("products/categories/{category_id}/suppliers/{user_id}")
+    Call<Result> getProductsBySupplier(
+            @Path("category_id") int category_id,
+            @Path("user_id") int user_id);
+
+
+    @GET("products/categories/{category_id}/name/{name}")
+    Call<Result> getProductsByName(
+            @Path("category_id") int category_id,
+            @Path("name") String name);
+
 
     @GET("products/{id}")
     Call<Result> getProduct(@Path("id") int id);
@@ -84,28 +96,32 @@ public interface Services {
     @POST("orders")
     Call<Result> setOrder(
             @Field("quantity") int quantity,
-            @Field("total") double total,
             @Field("status") String status,
             @Field("active") boolean active,
+            @Field("total") double total,
+            @Field("cash") double cash,
             @Field("product_id") int product_id,
-            @Field("buyer_id") int buyer_id,
-            @Field("credit_id") int credit_id);
+            @Field("user_id") int user_id,
+            @Field("number") String number,
+            @Field("expiry") String expiry,
+            @Field("csv") int csv);
 
-
-    @GET("orders/accounts/{account_id}/users/{user_id}/active/{active}")
+    @FormUrlEncoded
+    @POST("orders/active")
     Call<Result> getOrders(
-            @Path("account_id") int account_id,
-            @Path("user_id") int user_id,
-            @Path("active") boolean active);
+            @Field("account_id") int account_id,
+            @Field("user_id") int user_id,
+            @Field("active") boolean active);
 
     @GET("orders/{id}")
     Call<Result> getOrder(@Path("id") int id);
 
     @FormUrlEncoded
-    @GET("orders/status/{id}")
+    @POST("orders/update")
     Call<Result> updateOrderStatus(
-            @Path("id") int id,
-            @Field("status") String status);
+            @Field("id") int id,
+            @Field("status") String status,
+            @Field("active") boolean active);
 
     @GET("orders/delete/{id}")
     Call<Result> deleteOrder(@Path("id") int id);

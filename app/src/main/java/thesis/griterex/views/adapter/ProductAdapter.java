@@ -3,6 +3,7 @@ package thesis.griterex.views.adapter;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,10 +12,12 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 import java.util.List;
 import thesis.griterex.R;
+import thesis.griterex.domain.Services;
 import thesis.griterex.models.entities.Product;
 
 public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductViewHolder>{
 
+    String TAG = "ProductAdapter";
     private Context mCtx;
     private List<Product> productList;
     private static OnItemClickListener clickListener;
@@ -36,16 +39,17 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     public void onBindViewHolder(@NonNull ProductViewHolder holder, int position) {
         Product product = productList.get(position);
 
-        holder.txtName.setText(product.getProductName());
+        holder.txtName.setText(product.getName());
         holder.txtSupplierName.setText(product.getUser().getName());
         holder.txtLocation.setText(product.getUser().getAddress());
         holder.txtPrice.setText(String.valueOf(product.getPrice()));
 
         Picasso.get()
-                .load(product.getProductUrl())
+                .load(product.getUrl())
                 .placeholder(R.drawable.ic_photo_light_blue_24dp)
                 .error(R.drawable.ic_error_outline_red_24dp)
                 .into(holder.imgProd);
+        Log.d(TAG, "onBindViewHolder: " + product.getUrl());
     }
 
     @Override

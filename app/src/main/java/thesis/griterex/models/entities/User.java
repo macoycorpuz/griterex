@@ -38,7 +38,7 @@ public class User {
         this.credit_id = credit_id;
     }
 
-    public User(String name, String email, String password, String number, String address, double lat, double lng) {
+    public User(String name, String email, String password, String number, String address, double lat, double lng, int account_id) {
         this.name = name;
         this.email = email;
         this.password = password;
@@ -46,6 +46,7 @@ public class User {
         this.address = address;
         this.lat = lat;
         this.lng = lng;
+        this.account_id = account_id;
     }
 
     public int getId() {

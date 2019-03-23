@@ -34,8 +34,7 @@
                 android:background="@android:color/darker_gray"
                 android:clickable="true"
                 android:focusable="true"
-                android:scaleType="fitCenter"
-                android:padding="50dp"/>
+                android:scaleType="fitCenter"/>
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"

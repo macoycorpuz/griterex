@@ -14,6 +14,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.CursorLoader;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.text.TextUtils;
@@ -104,9 +105,13 @@ public class Utils {
 
     public static boolean isEmptyFields(String... fields) {
         for(String f : fields) {
-            if(f.isEmpty()) return false;
+            if(f.isEmpty()) return true;
         }
-        return true;
+        return false;
+    }
+
+    public static int parseWithDefault(String s) {
+        return s.matches("-?\\d+") ? Integer.parseInt(s) : 0;
     }
     //endregion
 
@@ -140,7 +145,7 @@ public class Utils {
         Fragment fragment;
         FragmentManager fragmentManager = baseActivity.getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-        if (!TAG.equals(CURRENT_TAG)) {
+        if (!TAG.equals(CURRENT_TAG) && !TAG.equals(Tags.USERS_FRAGMENT)) {
             switch (TAG) {
                 case Tags.PRODUCTS_FRAGMENT:
                     fragment = new ProductsFragment();
@@ -153,13 +158,10 @@ public class Utils {
                     break;
                 case Tags.PAYMENT_FRAGMENT:
                     fragment = new PaymentFragment();
+                    ((PaymentFragment) fragment).setProductId(productId);
                     break;
                 case Tags.SELL_FRAGMENT:
                     fragment = new SellFragment();
-                    break;
-                case Tags.USERS_FRAGMENT:
-                    fragment = new UsersFragment();
-                    ((UsersFragment) fragment).setAccountId(accountId);
                     break;
                 case Tags.PRODUCT_DETAILS_FRAGMENT:
                     fragment = new ProductDetailsFragment();
@@ -167,7 +169,7 @@ public class Utils {
                     break;
                 case Tags.USER_DETAILS_FRAGMENT:
                     fragment = new UserDetailsFragment();
-                    ((UserDetailsFragment) fragment).setUserId(userId);
+                    ((UserDetailsFragment) fragment).setPosition(userId);
                     break;
                 case Tags.ORDER_DETAILS_FRAGMENT:
                     fragment = new OrderDetailsFragment();
@@ -182,10 +184,21 @@ public class Utils {
             transaction.replace(id, fragment, TAG);
             transaction.commit();
         }
+
+        if(TAG.equals(Tags.USERS_FRAGMENT)){
+            fragment = new UsersFragment();
+            ((UsersFragment) fragment).setAccountId(accountId);
+
+            CURRENT_TAG = TAG;
+            transaction.replace(id, fragment, TAG);
+            transaction.commit();
+        }
+
+
     }
 
     public static void setPosition(int position) {
-        Utils.position = position;
+        Utils.position  = position;
     }
 
     public static void setAccountId(int accountId) {

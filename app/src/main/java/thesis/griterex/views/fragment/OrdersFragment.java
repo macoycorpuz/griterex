@@ -19,6 +19,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -95,7 +98,11 @@ public class OrdersFragment extends Fragment{
 
             }
         });
-        fetchOrders(active);
+
+
+        boolean isLoggedIn = SharedPrefManager.getInstance().isLoggedIn(getActivity());
+        if(!isLoggedIn) Utils.switchContent(getActivity(), R.id.fragContainer, Tags.ACCOUNT_FRAGMENT);
+        else fetchOrders(active);
 
         return mView;
 
@@ -108,10 +115,11 @@ public class OrdersFragment extends Fragment{
     }
 
     private void fetchOrders(boolean active) {
+        Log.d(TAG, "fetchOrders: " + active);
         clearView();
         Utils.showProgress(true, mProgress, mRecyclerView);
-        int accountId = SharedPrefManager.getInstance().getUser(getActivity()).getAccountId();
-        int userId = SharedPrefManager.getInstance().getUser(getActivity()).getUserId();
+        int userId = SharedPrefManager.getInstance().getUser(getActivity()).getId();
+        int accountId = SharedPrefManager.getInstance().getUser(getActivity()).getAccount_id();
         Api.getInstance().getServices().getOrders(accountId, userId, active).enqueue(new Callback<Result>() {
             @Override
             public void onResponse(Call<Result> call, Response<Result> response) {
@@ -135,8 +143,15 @@ public class OrdersFragment extends Fragment{
     }
 
     private void showOrders(final Result result) {
-        CenterRepo.getCenterRepo().setOrderList(result.getOrders());
-        final List<Product> productList = result.getProducts();
+        List<Order> orders = result.getOrders();
+        final List<Product> productList = new ArrayList<>();
+        Log.d(TAG, "showOrders: " + new Gson().toJson(orders));
+
+        CenterRepo.getCenterRepo().setOrderList(orders);
+
+        for(Order order : orders) {
+            productList.add(order.getProduct());
+        }
         productAdapter = new ProductAdapter(getActivity(), productList);
         productAdapter.setOnItemClickListener(new ProductAdapter.OnItemClickListener() {
             @Override

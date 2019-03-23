@@ -15,9 +15,11 @@ public class Order {
     @Expose
     private double total;
     @Expose
+    private double cash;
+    @Expose
     private int product_id;
     @Expose
-    private int buyer_id;
+    private int user_id;
     @Expose
     private int credit_id;
     @Expose
@@ -28,6 +30,16 @@ public class Order {
     private User user;
     @Expose
     private Credit credit;
+
+    public Order(int quantity, String status, boolean active, double total, double cash, int product_id, int user_id) {
+        this.quantity = quantity;
+        this.status = status;
+        this.active = active;
+        this.total = total;
+        this.cash = cash;
+        this.product_id = product_id;
+        this.user_id = user_id;
+    }
 
     public int getId() {
         return id;
@@ -53,8 +65,8 @@ public class Order {
         return product_id;
     }
 
-    public int getBuyer_id() {
-        return buyer_id;
+    public int getUser_id() {
+        return user_id;
     }
 
     public int getCredit_id() {
@@ -75,5 +87,9 @@ public class Order {
 
     public Credit getCredit() {
         return credit;
+    }
+
+    public double getCash() {
+        return cash;
     }
 }

@@ -15,6 +15,7 @@
     <string name="title_suppliers">Suppliers</string>
     <string name="title_credit_card">Add Credit Card</string>
     <string name="title_payment">Checkout</string>
+    <string name="title_user_details">User Details</string>
     <!-- endregion -->
 
     <!-- region User Strings -->
@@ -72,6 +73,7 @@
     <string name="action_order_processing">Processing</string>
     <string name="action_order_delivered">Delivered</string>
     <string name="action_sell">Sell</string>
+    <string name="action_delete_user">Delete User</string>
     <!-- endregion -->
 
     <!-- region Error Strings -->
@@ -81,5 +83,10 @@
     <string name="error_invalid_password">Password is invalid</string>
     <string name="error_sell_product">Please fill up all fields</string>
     <string name="error_product_image">Please upload product picture</string>
+    <string name="error_quantity">Invalid Quantity</string>
+    <string name="error_payment_method">Invalid Payment Method</string>
+    <string name="error_change">Invalid Change</string>
+    <string name="error_credit">Invalid Credit</string>
+    <string name="error_users">No user(s) found</string>
     <!-- endregion -->
 </resources>

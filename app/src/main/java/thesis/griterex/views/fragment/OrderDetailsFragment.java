@@ -1,11 +1,13 @@
 package thesis.griterex.views.fragment;
 
 import android.app.ProgressDialog;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
 import retrofit2.Call;
@@ -32,8 +35,8 @@ import thesis.griterex.utils.Utils;
 
 public class OrderDetailsFragment extends Fragment {
 
-    //region Attirbutes
-    String Tag;
+    //region Attributes
+    String TAG = "OrderDetailsFragment";
     int position;
     Order order;
 
@@ -42,7 +45,7 @@ public class OrderDetailsFragment extends Fragment {
     TextView mProdName, mSupplierName, mLocation, mPrice;
     TextView mName, mEmail;
     TextView mUser, mStatus;
-    Button mCancel;
+    Button mProcessing, mDelivered, mCancel;
     ProgressDialog pDialog;
 
     //endregion
@@ -66,20 +69,20 @@ public class OrderDetailsFragment extends Fragment {
 
         mStatus = mView.findViewById(R.id.txtOrderStatus);
         mUser = mView.findViewById(R.id.txtOrderUser);
-        Button mProcessing = mView.findViewById(R.id.btnOrderProcess);
-        Button mDelivered = mView.findViewById(R.id.btnOrderDelivered);
+        mProcessing = mView.findViewById(R.id.btnOrderProcess);
+        mDelivered = mView.findViewById(R.id.btnOrderDelivered);
         mCancel = mView.findViewById(R.id.btnOrderCancel);
 
         mProcessing.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setOrderStatus(Tags.PROCESSING);
+                setOrderStatus(Tags.PROCESSING, true);
             }
         });
         mDelivered.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setOrderStatus(Tags.DELIVERED);
+                setOrderStatus(Tags.DELIVERED, false);
             }
         });
         mCancel.setOnClickListener(new View.OnClickListener() {
@@ -99,7 +102,7 @@ public class OrderDetailsFragment extends Fragment {
     }
 
     private void authenticate() {
-        int accountId = SharedPrefManager.getInstance().getUser(getActivity()).getAccountId();
+        int accountId = SharedPrefManager.getInstance().getUser(getActivity()).getAccount_id();
         switch (accountId) {
             case Tags.USER:
                 mViewButtons.setVisibility(View.GONE);
@@ -118,25 +121,49 @@ public class OrderDetailsFragment extends Fragment {
         order = CenterRepo.getCenterRepo().getOrderList().get(position);
         mStatus.setText(order.getStatus());
         Product product = order.getProduct();
-        mProdName.setText(product.getProductName());
+        mProdName.setText(product.getName());
         mSupplierName.setText(product.getUser().getName());
         mLocation.setText(product.getUser().getAddress());
         mPrice.setText(String.valueOf(product.getPrice()));
         Picasso.get()
-                .load(product.getProductUrl())
+                .load(product.getUrl())
                 .placeholder(R.drawable.ic_photo_light_blue_24dp)
                 .error(R.drawable.ic_error_outline_red_24dp)
                 .into(mImage);
 
-        User user = order.getUser();
-        mName.setText(user.getName());
-        mEmail.setText(user.getEmail());
+        int accountId = SharedPrefManager.getInstance().getUser(getActivity()).getAccount_id();
+        User user;
+        switch (accountId) {
+            case Tags.SUPPLIER:
+                mUser.setText("Buyer");
+                user = order.getUser();
+                mName.setText("Name: " + user.getName());
+                mEmail.setText("Email: " + user.getEmail());
+                break;
+            case Tags.USER:
+                mUser.setText("Seller");
+                user = order.getProduct().getUser();
+                mName.setText("Name: " + user.getName());
+                mEmail.setText("Email: " + user.getEmail());
+                break;
+        }
+
+        if(order.getStatus().equals(Tags.DELIVERED)) {
+            mStatus.setTextColor(Color.parseColor("#00b226"));
+            mProcessing.setVisibility(View.GONE);
+            mDelivered.setVisibility(View.GONE);
+            mCancel.setVisibility(View.VISIBLE);
+            mCancel.setText("DELETE");
+        } else {
+            mStatus.setTextColor(Color.parseColor("#b20c0f"));
+        }
+
     }
 
-    private void setOrderStatus(String status) {
+    private void setOrderStatus(String status, boolean active) {
         pDialog = Utils.showProgressDialog(getActivity(), "Updating...");
-        int orderId = order.getOrderId();
-        Api.getInstance().getServices().updateOrderStatus(orderId, status).enqueue(new Callback<Result>() {
+        int orderId = order.getId();
+        Api.getInstance().getServices().updateOrderStatus(orderId, status, active).enqueue(new Callback<Result>() {
             @Override
             public void onResponse(Call<Result> call, Response<Result> response) {
                 try {
@@ -148,19 +175,21 @@ public class OrderDetailsFragment extends Fragment {
                     Toast.makeText(getActivity(), response.body().getMessage(), Toast.LENGTH_LONG).show();
                     Utils.switchContent(getActivity(), R.id.fragContainer, Tags.ORDERS_FRAGMENT);
                 } catch (Exception ex) {
+                    Utils.dismissProgressDialog(pDialog);
                     Toast.makeText(getActivity(), ex.getMessage(), Toast.LENGTH_LONG).show();
                 }
             }
 
             @Override
             public void onFailure(Call<Result> call, Throwable t) {
+                Utils.dismissProgressDialog(pDialog);
                 Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }
 
     private void deleteOrder() {
-        int orderId = order.getOrderId();
+        int orderId = order.getId();
         pDialog = Utils.showProgressDialog(getActivity(), "Cancelling order...");
         Api.getInstance().getServices().deleteOrder(orderId).enqueue(new Callback<Result>() {
             @Override
@@ -174,12 +203,14 @@ public class OrderDetailsFragment extends Fragment {
                     Toast.makeText(getActivity(), response.body().getMessage(), Toast.LENGTH_LONG).show();
                     Utils.switchContent(getActivity(), R.id.fragContainer, Tags.ORDERS_FRAGMENT);
                 } catch (Exception ex) {
+                    Utils.dismissProgressDialog(pDialog);
                     Toast.makeText(getActivity(), ex.getMessage(), Toast.LENGTH_LONG).show();
                 }
             }
 
             @Override
             public void onFailure(@Nullable Call<Result> call, @NonNull Throwable t) {
+                Utils.dismissProgressDialog(pDialog);
                 Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });

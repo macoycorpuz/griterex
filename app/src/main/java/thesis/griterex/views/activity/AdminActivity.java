@@ -20,8 +20,10 @@ public class AdminActivity extends AppCompatActivity {
         BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.inflateMenu(R.menu.navigation_admin);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-        Utils.switchContent(AdminActivity.this, R.id.fragContainer, Tags.PRODUCTS_FRAGMENT);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+
+        Utils.setAccountId(Tags.USER);
+        Utils.switchContent(AdminActivity.this, R.id.fragContainer, Tags.USERS_FRAGMENT);
     }
 
     //region Navigation Listener
