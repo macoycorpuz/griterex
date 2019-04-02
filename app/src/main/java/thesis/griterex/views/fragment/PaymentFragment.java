@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -45,12 +47,14 @@ public class PaymentFragment extends Fragment {
     Credit credit;
 
     View mView, mViewProduct, mViewCredit;
-    TextView mProductName, mSupplierName, mLocation, mPrice, mTotal, mError;
+    TextView mProductName, mSupplierName, mLocation, mPrice, mTotal, mError, mServiceCharge;
     EditText mQuantity, mPaymentMethod, mChange, mCardNumber, mCsv, mExpiryDate;
 
     Button mOrder;
     ImageView mImage;
     ProgressDialog pDialog;
+
+    double serviceCharge = 0;
     //endregion
 
     @Override
@@ -70,6 +74,7 @@ public class PaymentFragment extends Fragment {
         mPaymentMethod = mView.findViewById(R.id.txtPaymentMethod);
         mChange = mView.findViewById(R.id.txtPaymentChange);
         mError = mView.findViewById(R.id.txtPaymentError);
+        mServiceCharge = mView.findViewById(R.id.txtPaymentServiceCharge);
 
         mViewCredit = mView.findViewById(R.id.formPaymentCreditCard);
         mCardNumber = mViewCredit.findViewById(R.id.txtCardNumber);
@@ -109,6 +114,21 @@ public class PaymentFragment extends Fragment {
                 return false;
             }
         });
+        mQuantity.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if(!mQuantity.getText().toString().trim().equals("")) {
+                    double total = Double.valueOf(s.toString()) * product.getPrice();
+                    mTotal.setText(String.valueOf(total));
+                }
+            }
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
 
         return mView;
     }
@@ -129,6 +149,7 @@ public class PaymentFragment extends Fragment {
                         mViewCredit.setVisibility(View.GONE);
                         mChange.setVisibility(View.VISIBLE);
                         mPaymentMethod.setText(paymentMethod[position]);
+                        mChange.setText(mTotal.getText().toString());
                         break;
                     case 1:
                         paymentId = Tags.CREDIT;
@@ -173,6 +194,7 @@ public class PaymentFragment extends Fragment {
     private void authenticate(){
         mError.setVisibility(View.GONE);
         int userId = SharedPrefManager.getInstance().getUser(getActivity()).getId();
+
         order = new Order(
                 Integer.valueOf(mQuantity.getText().toString()),
                 "Order Submitted",
@@ -265,8 +287,16 @@ public class PaymentFragment extends Fragment {
         mViewCredit.setVisibility(View.GONE);
         mChange.setVisibility(View.VISIBLE);
         mPaymentMethod.setText(paymentMethod[0]);
+        if(product.getCategory_id() == Tags.WATER) serviceCharge = 5;
+        else serviceCharge = 40;
+
         double total = Double.valueOf(mQuantity.getText().toString()) * product.getPrice();
+        total += serviceCharge;
+
+        String service = "Service Fee: PHP " + String.valueOf(serviceCharge);
+        mServiceCharge.setText(service);
         mTotal.setText(String.valueOf(total));
+        mChange.setText(String.valueOf(total));
     }
 
 }

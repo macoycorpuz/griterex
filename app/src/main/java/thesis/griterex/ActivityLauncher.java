@@ -1,5 +1,6 @@
 package thesis.griterex;
 
+import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -43,6 +44,22 @@ public class ActivityLauncher extends AppCompatActivity {
                 startActivity(new Intent(this, AdminActivity.class));
                 finish();
                 break;
+        }
+
+        checkPermissions();
+    }
+
+    private void checkPermissions() {
+        int permissionCheck = this.checkSelfPermission("Manifest.permission.READ_EXTERNAL_STORAGE");
+        permissionCheck += this.checkSelfPermission("Manifest.permission.WRITE_EXTERNAL_STORAGE");
+        permissionCheck += this.checkSelfPermission("Manifest.permission.INTERNET");
+        permissionCheck += this.checkSelfPermission("Manifest.permission.ACCESS_NETWORK_STATE");
+        if (permissionCheck != 0) {
+            this.requestPermissions(new String[]{
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.INTERNET,
+                    Manifest.permission.ACCESS_NETWORK_STATE}, 1001); //Any number
         }
     }
 }
